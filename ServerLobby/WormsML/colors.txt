@@ -1,0 +1,15 @@
+0 White
+1 Yellow
+2 Cyan
+3 Grey/Silver
+4
+5
+6 Red
+7 DarkBlue
+8 Magenta
+9 Brown
+A Green
+B LightPink
+C Pink
+D
+E DarkRed
