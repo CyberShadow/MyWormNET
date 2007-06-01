@@ -33,6 +33,7 @@ procedure LogToOper(S: string);
 
 resourcestring
   IRCPassword='ELSILRACLIHP ';
+  IRCPassword2='ELSILRACLIHP';
 
 implementation
 uses
@@ -144,20 +145,20 @@ begin
         if Command='PASS' then {ignore}
           begin
           Password:=S;
-          if Password<>IRCPassword then
+          {if (Password<>IRCPassword) and (Password<>IRCPassword2) then
             begin
             SendLn(':'+ServerHost+' 464 '+S+' :Password incorrect');
             raise Exception.Create('Bad password!');
-            end;
+            end;}
           end
         else
         if Command='NICK' then
           begin
-          if Password<>IRCPassword then
+          {if (Password<>IRCPassword) and (Password<>IRCPassword2) then
             begin
             SendLn(':'+ServerHost+' 464 '+S+' :Password incorrect');
             raise Exception.Create('Bad password!');
-            end;
+            end;}
           
           if Nickname<>'' then
             SendLn(':'+ServerHost+' 400 :Nick change isn''t supported.')
