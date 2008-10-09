@@ -1,0 +1,7 @@
+N Anything Goes
+T Open games with 'Rope Knocking' allowed & blood fx
+S Pf,Be
+V 0
+W 0
+B fuck
+B FUCK

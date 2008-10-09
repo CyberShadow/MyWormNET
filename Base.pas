@@ -14,14 +14,13 @@ var
 
 procedure Log(S: string; DiskOnly: Boolean=False);
 procedure EventLog(S: string);
-function WinSockErrorCodeStr(Code: Integer): string;
 
 implementation
 uses
 {$IFNDEF WIN32}
   UnixUtils,
 {$ENDIF}
-  SysUtils, IRCServer;
+  SysUtils, Class_Server;
 
 procedure Log(S: string; DiskOnly: Boolean=False);
 var
@@ -48,7 +47,7 @@ begin
     if IOResult<>0 then ;
 
     // echo to IRC OPERs
-    LogToOper(S);
+    //LogToOper(S);
     end;
 end;
 
@@ -72,18 +71,6 @@ begin
 end;
 
 {$IFDEF WIN32}
-
-{$INCLUDE WinSockCodes.inc}
-
-function WinSockErrorCodeStr(Code: Integer): string;
-var
-  I: Integer;
-begin
-  Result:='Error #'+IntToStr(Code);
-  for I:=1 to High(WinSockErrors) do
-    if (WinSockErrors[I].Code=Code)or(WinSockErrors[I].Code=Code+10000) then
-      Result:=WinSockErrors[I].Text;
-end;
 
 {$ELSE}
 

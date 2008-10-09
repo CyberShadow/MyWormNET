@@ -1,0 +1,16 @@
+---------------------- myWormNET 2 Log ---------------------
+
+-------------------- 2008-10-09 19:39:59 --------------------
+[19:39:59] Server address: 10.1.0.2
+[19:39:59] Server ports: 80, 6667, 17018
+[19:39:59] Server is loading...
+[19:39:59] Channel '#Anything Goes' has beed added.
+[19:39:59] Channel '#Help' has beed added.
+[19:39:59] Server is up.
+[19:40:03] Error with 10.1.0.2: "File" not found - please\showit\841\1\1\6\index.html
+[19:40:52] Expro@10.1.0.2: has logged in.
+[19:40:55] Error with 10.1.0.2: "File" not found - aqq.hit.gemius.pl\dot.gif
+[19:40:57] Expro@10.1.0.2: has joned '#Anything Goes' channel.
+[19:40:59] Expro@10.1.0.2: has left #Anything Goes
+[19:41:01] Expro@10.1.0.2: has joned '#Anything Goes' channel.
+[19:41:05] Expro@1
