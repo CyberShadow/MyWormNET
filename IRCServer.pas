@@ -34,6 +34,7 @@ procedure LogToOper(S: string);
 resourcestring
   IRCPassword='ELSILRACLIHP ';
   IRCPassword2='ELSILRACLIHP';
+  ValidNickChars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`_-|';
 
 implementation
 uses
@@ -48,7 +49,7 @@ var
   R, Bytes, I, N: Integer;
   PingTimer: Integer;
   B: Boolean;
-  ReadSet: record
+  ReadSet, ErrorSet: record
     count: u_int;
     Socket: TSocket;
     end;
@@ -95,10 +96,12 @@ begin
       repeat
         ReadSet.count:=1;
         ReadSet.Socket:=Socket;
+        ErrorSet.count:=1;
+        ErrorSet.Socket:=Socket;
         TimeVal.tv_sec:=0;
         TimeVal.tv_usec:=10000;
-        R:=select(Socket+1, @ReadSet, nil, nil, @TimeVal);
-        if R=SOCKET_ERROR then
+        R:=select(Socket+1, @ReadSet, nil, @ErrorSet, @TimeVal);
+        if (R=SOCKET_ERROR) or (ErrorSet.count>0) then
           begin
           Log('[IRC] '+ConnectingFrom+' select() error ('+WinSockErrorCodeStr(WSAGetLastError)+').');
           raise Exception.Create('Connection error.');
@@ -153,7 +156,7 @@ begin
           end
         else
         if Command='NICK' then
-          begin
+        begin
           {if (Password<>IRCPassword) and (Password<>IRCPassword2) then
             begin
             SendLn(':'+ServerHost+' 464 '+S+' :Password incorrect');
@@ -163,21 +166,27 @@ begin
           if Nickname<>'' then
             SendLn(':'+ServerHost+' 400 :Nick change isn''t supported.')
           else
-            begin
-            while Copy(S, Length(S), 1)=' ' do
-              Delete(S, Length(S), 1);
-            B:=False;
-            for I:=0 to Length(Users)-1 do
-              if UpperCase(Users[I].Nickname)=UpperCase(S) then
-                B:=True;
-            if B then
-              SendLn(':'+ServerHost+' 433 '+S+' :Nickname is already in use')
+          begin
+            for I:=Length(S) downto 1 do
+              if Pos(S[I], ValidNickChars)=0 then
+                Delete(S, I, 1);
+            if S='' then
+              SendLn(':'+ServerHost+' 432 '+S+' :Erroneous nickname')
             else
-              Nickname:=S;
-            if UserName<>'' then
-              LogIn;
+            begin
+              B := False;
+              for I:=0 to Length(Users)-1 do
+                if UpperCase(Users[I].Nickname)=UpperCase(S) then
+                  B := True;
+              if B then
+                SendLn(':'+ServerHost+' 433 '+S+' :Nickname is already in use')
+              else
+                Nickname:=S;
+              if UserName<>'' then
+                LogIn;
             end;
-          end
+          end;
+        end
         else
         // USER Username hostname servername :40 0 RO 
         if Command='USER' then
@@ -200,6 +209,7 @@ begin
             for I:=0 to Length(Users)-1 do
               if Users[I].InChannel then
                 Users[I].SendLn(':'+Nickname+'!'+Username+'@'+ConnectingFrom+' QUIT :'+Copy(S, 2, 1000));
+          InChannel := False;
           Break
           end
         else
@@ -299,12 +309,13 @@ begin
               begin
               User:=nil;
               for I:=0 to Length(Users)-1 do
-                if Users[I].Nickname=Target then
+                if LowerCase(Users[I].Nickname)=LowerCase(Target) then
                   User:=Users[I];
               if User=nil then
                 SendLn(':'+ServerHost+' 401 '+Nickname+' '+Target+' :No such nick/channel.')
               else
                 begin
+                Target := User.Nickname;
                 EventLog('['+Command+'] <'+Nickname+'> -> <'+Target+'> '+Copy(S, 1, 1000));
                 LogToOper('['+Command+'] <'+Nickname+'> -> <'+Target+'> '+Copy(S, 1, 1000));
                 User.SendLn(':'+Nickname+'!'+Username+'@'+ConnectingFrom+' '+Command+' '+Target+' '+S);

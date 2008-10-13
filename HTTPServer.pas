@@ -135,6 +135,7 @@ begin
         begin
         Inc(GameCounter);
         Game.Name:=Parameters.Values['Name'];
+        if Length(Game.Name) > 29 then Game.Name := Copy(Game.Name, 1, 29);
         Game.Password:=Parameters.Values['Pwd'];
         Game.Loc:=Parameters.Values['Loc'];
         Game.GameID:=GameCounter;
@@ -150,9 +151,12 @@ begin
             raise Exception.Create('Can''t find IRC user "'+Parameters.Values['Nick']+'".');
 
           //if(Pos('http://wormnat.xeon.cc/', Parameters.Values['HostIP'])<>0)or(User.ConnectingFrom='127.0.0.1')or(Copy(User.ConnectingFrom, ) then
-          Game.HosterAddress:=Parameters.Values['HostIP'];
+          //Game.HosterAddress:=Parameters.Values['HostIP'];
           //else
-          //  Game.HosterAddress:=User.ConnectingFrom;  // auto-detect the user's external address
+          if Pos(':', Parameters.Values['HostIP'])>0 then
+            Game.HosterAddress:=User.ConnectingFrom + Copy(Parameters.Values['HostIP'], Pos(':', Parameters.Values['HostIP']), 1000)
+          else
+            Game.HosterAddress:=User.ConnectingFrom;  // auto-detect the user's external address
           Game.HosterNickname:=User.Nickname;
           end
         else
@@ -291,7 +295,7 @@ begin
     Log('[HTTP] bind error ('+WinSockErrorCodeStr(WSAGetLastError)+').');
     Exit;
     end;
-  if listen( m_socket, 1 )=SOCKET_ERROR then
+  if listen( m_socket, 50 )=SOCKET_ERROR then
     begin
     Log('[HTTP] bind error ('+WinSockErrorCodeStr(WSAGetLastError)+').');
     Exit;
@@ -312,7 +316,7 @@ begin
       Request.Resume;
       end
     else
-      Sleep(5);
+      Sleep(1);
   until False;
 end;
 
@@ -327,8 +331,3 @@ end;
 
 
 end.
-
-
-
-
-
