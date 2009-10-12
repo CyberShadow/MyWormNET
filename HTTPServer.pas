@@ -251,12 +251,12 @@ begin
             S:=MimeTypes[I].MimeType;
         Headers:=Headers+'Content-Type: '+S+#13#10;
         Body:=GetFile('wwwroot'+PathDelim+FileName);
-        Headers:=Headers+'Content-Length: '+IntToStr(Length(Body))+#13#10;
         end
       else
         raise Exception.Create('"File" not found - '+FileName);
       end;
 
+    Headers:=Headers+'Content-Length: '+IntToStr(Length(Body))+#13#10;
     S:=Headers+#13#10+Body;
     SendLn(S);
     Parameters.Free;
