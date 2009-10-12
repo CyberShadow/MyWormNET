@@ -114,17 +114,25 @@ begin
     Parameters:=TStringList.Create;
     Parameters.NameValueSeparator:='=';
     while S<>'' do
-      begin
+    begin
       Parameters.Add(Copy(S, 1, Pos('&', S)-1));
       Delete(S, 1, Pos('&', S));
-      end;
+    end;
+
+    //while GetLine(Buffer, S) do
+    //  WriteLn('> ' + S);
 
     Headers:='HTTP/1.0 200 OK'#13#10;
     Headers:=Headers+'X-Powered-By: MyWormNET'#13#10;
     Headers:=Headers+'X-Test: BlaBla'#13#10;
     Body:='';
     if FileName='Login.asp' then
-      Body:='<CONNECT '+ServerHost+'>'
+    begin
+      if ConnectingFrom='127.0.0.1' then
+        Body:='<CONNECT 127.0.0.1>'
+      else
+        Body:='<CONNECT '+ServerHost+'>';
+    end
     else
     if FileName='RequestChannelScheme.asp' then
       Body:='<SCHEME=Pf,Be>'
